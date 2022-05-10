@@ -2,29 +2,33 @@
 
 APP
 ---
-python3 flask -
-hello.py
+Python3 flask -
+To run - python hello.py
 
-Build Docker image - 
----------------------
-1. where the Dockerfile run: docker build -t <image_name> .
+Build and run Docker image locally - 
+---------------------------------
+1. Where the Dockerfile run: docker build -t <image_name:tag> .
+2. Run - docker run -p 80:80 <image_name:tag>
 
-Download Docker Image -
----------------------
-1. docker pull adish869/flask_proj
+Download Docker Image from dockerhub -
+-------------------------------------
+1. Run - docker pull adish869/flask_proj
 
 EKS deployment - 
 --------------
-1. one option to deploy EKS Cluster using eksctl -
+1. One option to deploy EKS Cluster using eksctl (creates subnets) -
 eksctl create cluster -f cluster.yaml
 
-2. second option to deploy - 
+2. Second option to deploy using Terraform (use existing subnets) - 
     - go to terraform folder 
-    - set the variable (you should have private subnets and public with the following tags - 
+    - set the variables in terraform.tfvars (you should have private subnets and public with the following tags - 
     kubernetes.io/cluster/<cluster_name> shared
     kubernetes.io/role/internal-elb 1
     for more option see - https://aws.amazon.com/premiumsupport/knowledge-center/eks-vpc-subnet-discovery/)
+    - Run - terraform init
+    - Run - terraform applay
 
-3. run aws eks update-kubeconfig --region region-code --name cluster-name
-4. run kubectl create -f deployment.yaml
-5. check deployment - kubesctl get all
+3. to set EKS Run -  aws eks update-kubeconfig --region region-code --name cluster-name
+4. To deploy on EKS run -  kubectl create -f deployment.yaml
+5. Check deployment - kubesctl get all or kubectl get svc and get the LB external IP (DNS)
+6. Run DNS on browser to see "Hello Illusive"
