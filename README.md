@@ -1,4 +1,4 @@
-# excersise
+#Excercise
 
 APP
 ---
