@@ -1,6 +1,17 @@
 provider "aws" {
   region = var.region
 }
+
+provider "kubernetes" {
+  host                   = aws_eks_cluster.eks.endpoint
+  cluster_ca_certificate = base64decode(aws_eks_cluster.eks.certificate_authority[0].data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1alpha1"
+    args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
+    command     = "aws"
+  }
+}
+
 # Resource: aws_iam_role
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role
 
@@ -43,7 +54,7 @@ resource "aws_iam_role_policy_attachment" "amazon_eks_cluster_policy" {
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster
 
 resource "aws_eks_cluster" "eks" {
-  # Name of the cluster.
+
   name = var.cluster_name
 
   # The Amazon Resource Name (ARN) of the IAM role that provides permissions for 
@@ -131,7 +142,7 @@ resource "aws_iam_role_policy_attachment" "amazon_ec2_container_registry_read_on
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_node_group
 
 resource "aws_eks_node_group" "nodes_general" {
-  # Name of the EKS Cluster.
+
   cluster_name = var.cluster_name
 
   # Name of the EKS Node Group.
@@ -150,13 +161,9 @@ resource "aws_eks_node_group" "nodes_general" {
 
   # Configuration block with scaling settings
   scaling_config {
-    # Desired number of worker nodes.
+
     desired_size = var.desired_size
-
-    # Maximum number of worker nodes.
     max_size = var.max_size
-
-    # Minimum number of worker nodes.
     min_size = var.min_size
   }
 
@@ -192,4 +199,61 @@ resource "aws_eks_node_group" "nodes_general" {
     aws_iam_role_policy_attachment.amazon_eks_cni_policy_general,
     aws_iam_role_policy_attachment.amazon_ec2_container_registry_read_only,
   ]
+}
+
+
+resource "kubernetes_deployment" "dep" {
+  metadata {
+    name = "myapp-dep"
+    labels = {
+      app = "myapp"
+    }
+  }
+
+  spec {
+    replicas = 3
+
+    selector {
+      match_labels = {
+        app = "myapp"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "myapp"
+        }
+      }
+
+      spec {
+        container {
+          image = "adish869/flask_proj:latest"
+          name  = "hello"
+          port {
+            container_port = 80
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "lb" {
+ metadata {
+    name = "myapp-lb"
+    labels = {
+      app = "myapp"
+    }
+  }
+   spec {
+    selector = {
+      app = "myapp"
+    }
+    port {
+      port        = 80
+      target_port = 80
+    }
+    type = "LoadBalancer"
+  }
 }

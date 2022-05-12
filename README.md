@@ -28,7 +28,7 @@ eksctl create cluster -f cluster.yaml
     - Run - terraform init
     - Run - terraform applay
 
-3. to set EKS Run -  aws eks update-kubeconfig --region region-code --name cluster-name
-4. To deploy on EKS run -  kubectl create -f deployment.yaml
-5. Check deployment - kubesctl get all or kubectl get svc and get the LB external IP (DNS)
-6. Run DNS on browser to see "Hello Illusive"
+3. Check deployment - kubesctl get all or kubectl get svc and get the LB external IP (DNS)
+4. Run DNS on browser to see "Hello Illusive"
+
+* to set EKS Run -  aws eks update-kubeconfig --region region-code --name cluster-name

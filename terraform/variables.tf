@@ -4,6 +4,7 @@ variable "region" {
   default     = "us-west-2"
 }
 
+  # Name of the EKS Cluster.
 variable "cluster_name" {
   description = "The name of the EKS cluster"
   type        = string
@@ -15,18 +16,21 @@ variable "subnet_ids" {
   type        = list(string)
 }
 
+  # Desired number of worker nodes.
 variable "desired_size" {
   description = "Desired number of worker nodes in private subnet"
   type        = number
   default     = 2
 }
 
+  # Maximum number of worker nodes.
 variable "max_size" {
   description = "Maximum number of worker nodes in private subnet"
   type        = number
   default     = 10
 }
 
+  # Minimum number of worker nodes.
 variable "min_size" {
   description = "Minimum number of worker nodes in private subnet"
   type        = number
